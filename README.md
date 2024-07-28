@@ -1,4 +1,4 @@
-# Space View
+# SpaceView
 
 A small project to learn C#, .NET and Avalonia. 
 
@@ -7,6 +7,11 @@ Explore the NASA-API and save your favourite astronomy pictures of the day, as w
 ## NASA-API Key
 
 Before using the app, get an API key from [NASA](https://api.nasa.gov/) and place it in the `src/SpaceView/appsettings.json` file.
+
+## Preview
+
+![SpaceView](https://github.com/user-attachments/assets/27bec332-556c-4f50-a5ba-590f7d9f65a2)
+![SpaceView](https://github.com/user-attachments/assets/b22655f3-8951-45fb-94e9-5a330b05e3f2)
 
 ## Third Party Licenses
 
