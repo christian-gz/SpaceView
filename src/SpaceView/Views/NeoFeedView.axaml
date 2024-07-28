@@ -1,0 +1,184 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SpaceView.ViewModels"
+             xmlns:view="clr-namespace:SpaceView.Views"
+             xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+             xmlns:converter="clr-namespace:SpaceView.Converter"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1200"
+             x:Class="SpaceView.Views.NeoFeedView"
+             x:DataType="vm:NeoFeedViewModel"
+             FontSize="14">
+
+    <Design.DataContext>
+        <vm:NeoFeedViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <converter:DayConverter x:Key="DayConverter"/>
+        <converter:NeoNameCleaner x:Key="NeoNameCleaner"/>
+        <converter:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+    </UserControl.Resources>
+
+    <Grid Name="Root">
+        <Grid RowDefinitions="Auto, Auto, *" ColumnDefinitions="*, 3*, *">
+
+        <Border Grid.Column="1" Grid.Row="1"
+                BorderThickness="1"
+                Background="White"
+                BoxShadow="2 2 2 2 #dddddd"
+                CornerRadius="15"
+                MinWidth="700"
+                Margin="5, 20, 5, 15"
+                Padding="10">
+
+                <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, *, *" Margin="5">
+                    <TextBlock Grid.Column="0" Grid.Row="0"
+                               Text="Select a close approach Date:"
+                               FontSize="16"
+                               Margin="0, 0, 0, 5"/>
+
+                    <DatePicker Grid.Column="0" Grid.Row="1"
+                                SelectedDate="{Binding DateNeoFeed}"
+                                VerticalAlignment="Center"
+                                Classes="Large"
+                                FontSize="16"/>
+
+                    <ComboBox Grid.Column="1" Grid.Row="1"
+                              ItemsSource="{Binding DateRangeOptions}"
+                              SelectedItem="{Binding DateRangeDays}"
+                              PlaceholderText="Select Date Range"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              FontSize="16"
+                              Margin="5, 0, 0, 0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock x:CompileBindings="False" Text="{Binding Converter={StaticResource DayConverter}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+                            Content="Load Near Earth Objects"
+                            Command="{Binding LoadNeoFeedCommand}"
+                            HorizontalAlignment="Stretch"
+                            Classes="Primary"
+                            Theme="{DynamicResource SolidButton}"
+                            Padding="9"
+                            FontSize="16"
+                            Margin="0, 10, 0, 0"/>
+                </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Grid.Column="1"
+                IsVisible="{Binding NeoFeed, Converter={x:Static ObjectConverters.IsNotNull}}"
+                MinWidth="710">
+            <ScrollViewer Margin="0, 0, -15, 10">
+                <ItemsControl ItemsSource="{Binding NeoFeed}" Padding="5, 5, 20, 5">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="1"
+                                    Background="White"
+                                    BoxShadow="2 2 2 2 #dddddd"
+                                    CornerRadius="15"
+                                    Padding="0"
+                                    Margin="0, 0, 0, 15">
+                                <Expander Header="{Binding Key, StringFormat='Near Earth Event Date: {0}'}"
+                                          FontSize="16"
+                                          HorizontalContentAlignment="Stretch"
+                                          Margin="10">
+                                        <ItemsControl ItemsSource="{Binding Value}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button x:CompileBindings="False"
+                                                            Command="{Binding #Root.DataContext.OpenNeoDetailCommand}"
+                                                            CommandParameter="{Binding ID}"
+                                                            FontWeight="Normal"
+                                                            Foreground="Black"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            Padding="5, 0"
+                                                            Margin="0, 5">
+                                                        <Grid ColumnDefinitions="3*, Auto, 2*">
+                                                            <Grid Grid.Column="0" ColumnDefinitions="Auto, *, Auto" Margin="5">
+                                                                <StackPanel Grid.Column="0">
+                                                                    <TextBlock Text="Name:"/>
+                                                                    <TextBlock Text="Estimated Diameter:"/>
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBlock Text="{Binding Name, Converter={StaticResource NeoNameCleaner}}" HorizontalAlignment="Right"/>
+                                                                    <TextBlock IsVisible="{Binding ., Converter={x:Static ObjectConverters.IsNotNull}}" HorizontalAlignment="Right">
+                                                                        <TextBlock.Text>
+                                                                            <MultiBinding StringFormat="{}{0:F2} - {1:F2}">
+                                                                                <Binding Path="EstimatedDiameter.Meters.Min"/>
+                                                                                <Binding Path="EstimatedDiameter.Meters.Max"/>
+                                                                            </MultiBinding>
+                                                                        </TextBlock.Text>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="2">
+                                                                    <TextBlock Text=""/>
+                                                                    <TextBlock Text=" Meters" FontStyle="Italic" Opacity="0.75"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                            <Separator Grid.Column="1" Height="40" Width="1" Margin="10, 0" Background="Gainsboro"/>
+                                                            <Grid Grid.Column="2" ColumnDefinitions="3*, 1*" Margin="5">
+                                                                <StackPanel Grid.Column="0">
+                                                                    <TextBlock Text="Potentially Hazardous:"/>
+                                                                    <TextBlock Text="Sentry Object:"/>
+                                                                </StackPanel>
+                                                                <StackPanel Grid.Column="1">
+                                                                    <TextBlock Text="{Binding IsPotentiallyHazardousAsteroid, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Right"/>
+                                                                    <TextBlock Text="{Binding IsSentryObject, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Right"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                </Expander>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+       </Border>
+
+        </Grid>
+
+        <progRing:ProgressRing Width="80"
+                               Height="80"
+                               IsActive="{Binding RequestIsExecuting}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="Red">
+        </progRing:ProgressRing>
+
+        <TextBlock Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding HasError}"
+                   Foreground="Red"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   FontSize="16"/>
+
+        <Border Background="#AA000000"
+                ZIndex="1"
+                IsVisible="{Binding NeoDetailOpen}"
+                VerticalAlignment="Stretch">
+        </Border>
+
+        <Border IsVisible="{Binding NeoDetailOpen}"
+                Background="White"
+                BoxShadow="2 2 10 0 Black"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="50"
+                ZIndex="2">
+            <view:NeoDetailView DataContext="{Binding NeoDetailViewModel}"/>
+        </Border>
+    </Grid>
+
+</UserControl>

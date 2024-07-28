@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SpaceView.ViewModels"
+             xmlns:view="clr-namespace:SpaceView.Views"
+             xmlns:conv="clr-namespace:SpaceView.Converter"
+             xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1200"
+             x:Class="SpaceView.Views.NeoFavoritesView"
+             x:DataType="vm:NeoFavoritesViewModel"
+             FontSize="14">
+
+    <Design.DataContext>
+        <vm:NeoFavoritesViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <conv:NeoNameCleaner x:Key="NeoNameCleaner"/>
+        <conv:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+    </UserControl.Resources>
+
+    <Grid Name="root">
+        <Grid>
+            <ListBox ItemsSource="{Binding FavoriteNeosNew.Result}"
+                     SelectedItem="{Binding SelectedNeo}"
+                     HorizontalAlignment="Center"
+                     Margin="10, 10">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Margin="0, 0, 10, 0"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button x:CompileBindings="False"
+                                Command="{Binding #root.DataContext.OpenNeoDetailsCommand}"
+                                CommandParameter="{Binding .}"
+                                Background="Transparent"
+                                Foreground="Black"
+                                FontWeight="Normal"
+                                Padding="0">
+                            <Grid ColumnDefinitions="3*, 2*, Auto" Width="450" Margin="20">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Name:"/>
+                                    <TextBlock Text="Estimated Diameter:"/>
+                                    <TextBlock Text="Potentially Hazardous:"/>
+                                    <TextBlock Text="Sentry Object:"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name, Converter={StaticResource NeoNameCleaner}}" HorizontalAlignment="Right"/>
+                                    <TextBlock IsVisible="{Binding ., Converter={x:Static ObjectConverters.IsNotNull}}" HorizontalAlignment="Right">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0:F2} - {1:F2}">
+                                                <Binding Path="EstimatedDiameter.Meters.Min"/>
+                                                <Binding Path="EstimatedDiameter.Meters.Max"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding IsPotentiallyHazardousAsteroid, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding IsSentryObject, Converter={StaticResource BoolToYesNoConverter}}" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=" Meters" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=""/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Margin" Value="10"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="BorderBrush" Value="Gainsboro"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="CornerRadius" Value="10"/>
+                        <Setter Property="Background" Value="White"/>
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+
+            <progRing:ProgressRing Width="80"
+                                   Height="80"
+                                   IsActive="{Binding FavoriteNeosNew.IsNotCompleted}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="Red">
+            </progRing:ProgressRing>
+
+            <TextBlock Text="{Binding FavoriteNeosNew.ErrorMessage}"
+                       IsVisible="{Binding FavoriteNeosNew.IsFaulted}"
+                       Foreground="Red"
+                       HorizontalAlignment="Center"
+                       FontSize="16"/>
+        </Grid>
+
+        <Border Background="#AA000000"
+                ZIndex="1"
+                IsVisible="{Binding NeoDetailOpen}"
+                VerticalAlignment="Stretch">
+        </Border>
+
+        <Border IsVisible="{Binding NeoDetailOpen}"
+                BoxShadow="2 2 10 0 Black"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ZIndex="2"
+                Margin="50">
+            <view:NeoDetailView DataContext="{Binding NeoDetailViewModel}"/>
+        </Border>
+    </Grid>
+
+</UserControl>

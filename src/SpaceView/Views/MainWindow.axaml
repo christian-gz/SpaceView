@@ -1,0 +1,118 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SpaceView.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converter="clr-namespace:SpaceView.Converter"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
+        mc:Ignorable="d" d:DesignWidth="1800" d:DesignHeight="1200"
+        Icon="/Assets/planet.ico"
+        x:Class="SpaceView.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="" Height="1200" Width="1800"
+        MinHeight="800" MinWidth="1000"
+        FontSize="14">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Resources>
+        <converter:CurrentViewToBackgroundBrush x:Key="CurrentViewToBackgroundBrush"/>
+    </Window.Resources>
+
+    <Grid ColumnDefinitions="260, *" RowDefinitions="*">
+        <TransitioningContentControl Grid.Column="1"
+                                     Background="#fafafa"
+                                     Content="{Binding CurrentViewModel}"/>
+
+        <Border Grid.Column="0" BorderBrush="Gainsboro" BorderThickness="0, 0, 1, 0">
+            <Grid RowDefinitions="Auto, Auto, 70, 70, 70, 25*" Margin="0, 0, 0, 0">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0, 10, 0, 10">
+                    <Svg Path="/Assets/planet.svg" Width="40" Margin="23, 0"/>
+                    <TextBlock TextAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               TextWrapping="Wrap"
+                               Text="Space View"/>
+                </StackPanel>
+
+                <Separator Grid.Row="1" Margin="20, 0, 20, 10"/>
+
+                <Button Grid.Row="2"
+                        Command="{Binding NavigateApodCommand}"
+                        Background="{Binding CurrentViewModel,
+                                     Converter={StaticResource CurrentViewToBackgroundBrush},
+                                     ConverterParameter='APOD'}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        HorizontalContentAlignment="Stretch"
+                        CornerRadius="5"
+                        Padding="5"
+                        Margin="10, 0">
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-earth-europe" FontSize="20" Foreground="#757575" Margin="10, 0, 0, 0"/>
+                        <TextBlock Text="Astronomy Picture of the Day"
+                                   Foreground="Black"
+                                   Width="170"
+                                   TextAlignment="Left"
+                                   TextWrapping="Wrap"
+                                   Margin="25, 0, 0, 0"
+                                   FontSize="18"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Grid.Row="3"
+                        Command="{Binding NavigateNeoFeedCommand}"
+                        Background="{Binding CurrentViewModel,
+                                     Converter={StaticResource CurrentViewToBackgroundBrush},
+                                     ConverterParameter='NEO'}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        HorizontalContentAlignment="Stretch"
+                        CornerRadius="5"
+                        Padding="5"
+                        Margin="10, 0">
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-meteor" FontSize="20" Foreground="#757575" Margin="10, 0, 0, 0"/>
+                        <TextBlock Text="Near Earth Objects"
+                                   Foreground="Black"
+                                   Width="170"
+                                   TextAlignment="Left"
+                                   TextWrapping="Wrap"
+                                   Margin="25, 0, 0, 0"
+                                   FontSize="18"/>
+                    </StackPanel>
+                    </Button>
+
+                <Button Grid.Row="4"
+                        Command="{Binding NavigateFavoritesCommand}"
+                        Background="{Binding CurrentViewModel,
+                                     Converter={StaticResource CurrentViewToBackgroundBrush},
+                                     ConverterParameter='Favorites'}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        HorizontalContentAlignment="Stretch"
+                        CornerRadius="5"
+                        Padding="5"
+                        Margin="10, 0">
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-regular fa-star" FontSize="20" Foreground="#757575" Margin="10, 0, 0, 0"/>
+                        <TextBlock Text="Favorites"
+                                   Foreground="Black"
+                                   Width="170"
+                                   TextAlignment="Left"
+                                   TextWrapping="Wrap"
+                                   Margin="25, 0, 0, 0"
+                                   FontSize="18"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+
+</Window>

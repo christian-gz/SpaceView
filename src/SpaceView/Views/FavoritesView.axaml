@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SpaceView.ViewModels"
+             xmlns:converter="clr-namespace:SpaceView.Converter"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1200"
+             x:Class="SpaceView.Views.FavoritesView"
+             x:DataType="vm:FavoritesViewModel">
+
+    <Design.DataContext>
+        <vm:FavoritesViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <converter:CurrentFavoriteViewToBackgroundBrush x:Key="CurrentFavoriteViewToBackgroundBrush"/>
+        <converter:CurrentFavoriteViewToBorderBrush x:Key="CurrentFavoriteViewToBorderBrush"/>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        <Grid Grid.Row="1" HorizontalAlignment="Center" Width="600" Margin="0, 20, 0, 20">
+            <Border BorderThickness="1"
+                    Padding="4, 3, 3, 3"
+                    CornerRadius="20"
+                    BoxShadow="2 2 2 2 #dddddd"
+                    Background="#e9ebee">
+                <Grid ColumnDefinitions="*, *">
+                    <Button Grid.Column="0"
+                            Command="{Binding NavigateApodFavoritesCommand}"
+                            Background="{Binding CurrentFavoritesViewModel,
+                                         Converter={StaticResource CurrentFavoriteViewToBackgroundBrush},
+                                         ConverterParameter='APOD'}"
+                            BorderBrush="{Binding CurrentFavoritesViewModel,
+                                         Converter={StaticResource CurrentFavoriteViewToBorderBrush},
+                                         ConverterParameter='APOD'}"
+                            Content="Astronomy Picture of the Day"
+                            Foreground="Black"
+                            CornerRadius="20"
+                            FontSize="16"/>
+                    <Button Grid.Column="1"
+                            Command="{Binding NavigateNeoFavoritesCommand}"
+                            Background="{Binding CurrentFavoritesViewModel,
+                                         Converter={StaticResource CurrentFavoriteViewToBackgroundBrush},
+                                         ConverterParameter='NEO'}"
+                            BorderBrush="{Binding CurrentFavoritesViewModel,
+                                         Converter={StaticResource CurrentFavoriteViewToBorderBrush},
+                                         ConverterParameter='NEO'}"
+                            Content="Near Earth Objects"
+                            Foreground="Black"
+                            CornerRadius="20"
+                            FontSize="16"
+                            Margin="5, 0, 0, 0"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <TransitioningContentControl Grid.Row="2"
+                                     Content="{Binding CurrentFavoritesViewModel}"/>
+    </Grid>
+
+</UserControl>

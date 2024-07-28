@@ -1,0 +1,242 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SpaceView.ViewModels"
+             xmlns:converter="clr-namespace:SpaceView.Converter"
+             xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="SpaceView.Views.NeoDetailView"
+             x:DataType="vm:NeoDetailViewModel"
+             FontSize="14">
+
+    <Design.DataContext>
+        <vm:NeoDetailViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <converter:NeoNameCleaner x:Key="NeoNameCleaner"/>
+        <converter:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+        <converter:StringToFormattedNumber x:Key="StringToFormattedNumberConverter"/>
+    </UserControl.Resources>
+
+    <Grid Background="#fafafa" RowDefinitions="*">
+        <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="*" IsVisible="{Binding NeoDetail, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="1"
+                       Text="{Binding NeoDetail.Name, Converter={StaticResource NeoNameCleaner}}"
+                       FontWeight="SemiBold"
+                       FontSize="20"
+                       TextAlignment="Center"
+                       Margin="20, 20, 20, 10"/>
+
+            <Button Grid.Column="0" Grid.Row="0"
+                    Content="Remove from Favorites"
+                    Command="{Binding RemoveNeoFromFavoritesCommand}"
+                    IsVisible="{Binding IsFavorite}"
+                    FontSize="14"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Classes="Danger"
+                    Theme="{DynamicResource SolidButton}"
+                    Margin="20, 20, 20, 10"/>
+
+            <Button Grid.Column="0" Grid.Row="0"
+                    Content="Add to Favorites"
+                    Command="{Binding AddNeoToFavoritesCommand}"
+                    IsVisible="{Binding !IsFavorite}"
+                    FontSize="14"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Classes="Primary"
+                    Theme="{DynamicResource SolidButton}"
+                    Margin="20, 20, 20, 10"/>
+
+            <ScrollViewer Grid.Column="0" Grid.Row="1">
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                    <Border BorderThickness="1"
+                            Background="White"
+                            BoxShadow="2 2 2 2 #dddddd"
+                            CornerRadius="15"
+                            MinWidth="450"
+                            Padding="15"
+                            Margin="30, 5, 25, 20"
+                            VerticalAlignment="Top"
+                            Height="600"
+                            Width="500">
+                        <StackPanel>
+                            <TextBlock Text="Near Earth Object Details:"
+                                       FontSize="18"
+                                       HorizontalAlignment="Left"
+                                       FontWeight="SemiBold"
+                                       Margin="0, 0, 0, 5"/>
+                            <Grid ColumnDefinitions="2*, *, *">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="ID:"/>
+                                    <TextBlock Text="Absolute Magnitude:"><ToolTip.Tip>Absolute Magnitude (H) represents the brightness of a celestial object, such as an asteroid, as it would appear if it were located 1 astronomical unit (AU) away from both the Earth and the Sun.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Estimated Diameter:"/>
+                                    <TextBlock Text="Potentially Hazardous:"/>
+                                    <TextBlock Text="Sentry Object:"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding NeoDetail.ID}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.Magnitude, StringFormat='{}{0}'}" HorizontalAlignment="Right"/>
+                                    <TextBlock HorizontalAlignment="Right">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0:F2} - {1:F2}">
+                                                <Binding Path="NeoDetail.EstimatedDiameter.Meters.Min"/>
+                                                <Binding Path="NeoDetail.EstimatedDiameter.Meters.Max"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding NeoDetail.IsPotentiallyHazardousAsteroid, Converter={StaticResource BoolToYesNoConverter}}" FontSize="14" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.IsSentryObject, Converter={StaticResource BoolToYesNoConverter}}" FontSize="14" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=" H" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" Meters" FontStyle="Italic" Opacity="0.75"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Orbit Details:"
+                                       FontSize="18"
+                                       HorizontalAlignment="Left"
+                                       FontWeight="SemiBold"
+                                       Margin="0, 20, 0, 5"/>
+                            <Grid ColumnDefinitions="2*, *, *">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="ID:"/>
+                                    <TextBlock Text="First Observation:"/>
+                                    <TextBlock Text="Orbit Uncertainty:"><ToolTip.Tip>A numerical scale (0-9) to express the uncertainty of the orbit, with 0 being the most certain.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Minimum Orbit Intersection:"><ToolTip.Tip>The smallest distance between the object's orbit and Earth's orbit, measured in astronomical units (AU).</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Eccentricity:"><ToolTip.Tip>Measures how much the orbit deviates from being circular. A value of 0 is a perfect circle, while values closer to 1 indicate more elongated orbits.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Semi Major Axis:"><ToolTip.Tip>The average distance from the object to its primary focus (for planets in the solar system, this is the sun), measured in astronomical units (AU).</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Inclination:"><ToolTip.Tip>The tilt of the orbit's plane relative to the plane of the solar system, measured in degrees.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Orbital Period:"><ToolTip.Tip>The time it takes for the object to complete one orbit around the sun, measured in days.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Perihelion Distance:"><ToolTip.Tip>The closest point in the orbit to the sun, measured in AU.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Aphelion Distance:"><ToolTip.Tip>The farthest point in the orbit to the sun, measured in AU.</ToolTip.Tip></TextBlock>
+                                    <TextBlock Text="Mean Motion:"><ToolTip.Tip>The rate at which the object moves along its orbit, usually measured in degrees per day.</ToolTip.Tip></TextBlock>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.ID}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.FirstObservationDate}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.OrbitUncertainty}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.MinimumOrbitIntersection, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.Eccentricity, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.SemiMajorAxis, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.Inclination, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.OrbitalPeriod, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.PerihelionDistance, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.AphelionDistance, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding NeoDetail.OrbitalData.MeanMotion, Converter={StaticResource StringToFormattedNumberConverter}}" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=" AU" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=""/>
+                                    <TextBlock Text=" AU" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" Degrees" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" Days" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" AU" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" AU" FontStyle="Italic" Opacity="0.75"/>
+                                    <TextBlock Text=" degrees/day" FontStyle="Italic" Opacity="0.75"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Orbit Class:"
+                                       FontSize="18"
+                                       HorizontalAlignment="Left"
+                                       FontWeight="SemiBold"
+                                       Margin="0, 20, 0, 5"/>
+                            <Grid ColumnDefinitions="*, 3*" RowDefinitions="Auto, Auto, Auto">
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Type:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Description:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Range:"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding NeoDetail.OrbitalData.OrbitClass.OrbitClassType}"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding NeoDetail.OrbitalData.OrbitClass.OrbitClassDescription}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding NeoDetail.OrbitalData.OrbitClass.OrbitClassRange}" TextWrapping="Wrap"/>
+                            </Grid>
+
+                        </StackPanel>
+                    </Border>
+
+                    <Grid RowDefinitions="Auto, *"
+                          Margin="25, 0, 30, 0"
+                          VerticalAlignment="Top">
+                        <TextBlock Grid.Row="0" Text="Close Approaches:"
+                                   FontSize="18"
+                                   HorizontalAlignment="Left"
+                                   FontWeight="SemiBold"
+                                   Margin="5, 0, 0, 10"/>
+                        <ScrollViewer Grid.Row="1"
+                                      Padding="0, 0, 15, 0"
+                                      Height="740"
+                                      Width="525">
+                            <ItemsControl ItemsSource="{Binding NeoDetail.CloseApproach}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderThickness="1"
+                                                Background="White"
+                                                BoxShadow="2 2 2 2 #dddddd"
+                                                CornerRadius="15"
+                                                Padding="10"
+                                                Margin="5, 5, 5, 10">
+                                            <Expander Header="{Binding CloseApproachDate}" HorizontalContentAlignment="Stretch" Opacity="1">
+                                                <StackPanel>
+                                                    <TextBlock Text="Relative Velocity:"/>
+                                                    <Grid ColumnDefinitions="2*, 3*">
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding RelativeVelocity.KilometersPerSecond, StringFormat='{}{0:F3}'}" HorizontalAlignment="Right"/>
+                                                            <TextBlock Text="{Binding RelativeVelocity.KilometersPerHour, StringFormat='{}{0:F3}'}" HorizontalAlignment="Right"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text=" kilometers/second" FontStyle="Italic" Opacity="0.75"/>
+                                                            <TextBlock Text=" kilometers/hour" FontStyle="Italic" Opacity="0.75"/>
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                    <TextBlock Text="Miss Distance:"/>
+                                                    <Grid ColumnDefinitions="2*, 3*">
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding MissDistance.Astronomical, StringFormat='{}{0:F3}'}" HorizontalAlignment="Right"/>
+                                                            <TextBlock Text="{Binding MissDistance.Lunar, StringFormat='{}{0:F3}'}" HorizontalAlignment="Right"/>
+                                                            <TextBlock Text="{Binding MissDistance.Kilometers, StringFormat='{}{0:F3}'}" HorizontalAlignment="Right"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text=" AU" FontStyle="Italic" Opacity="0.75"/>
+                                                            <TextBlock Text=" Lunar" FontStyle="Italic" Opacity="0.75"/>
+                                                            <TextBlock Text=" Kilometers" FontStyle="Italic" Opacity="0.75"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Expander>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </WrapPanel>
+            </ScrollViewer>
+
+            <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+                    Content="Go Back"
+                    Command="{Binding GoBackCommand}"
+                    FontSize="18"
+                    Classes="Secondary"
+                    Theme="{DynamicResource SolidButton}"
+                    Margin="20"/>
+        </Grid>
+
+        <progRing:ProgressRing Width="80"
+                               Height="80"
+                               IsActive="{Binding RequestIsExecuting}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="Red">
+        </progRing:ProgressRing>
+    </Grid>
+
+</UserControl>

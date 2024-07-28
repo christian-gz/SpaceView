@@ -1,0 +1,150 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SpaceView.ViewModels"
+             xmlns:converter="clr-namespace:SpaceView.Converter"
+             xmlns:progRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1000"
+             x:Class="SpaceView.Views.ApodDetailView"
+             x:DataType="vm:ApodDetailViewModel">
+
+    <Design.DataContext>
+        <vm:ApodDetailViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Resources>
+        <converter:ApodMediaTypeIsVideo x:Key="ApodMediaTypeIsVideo"/>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="*, 3*, *" Background="#fafafa">
+        <Border Grid.Column="1" Grid.Row="0"
+                IsVisible="{Binding !IsApodPictureOpen}"
+                BorderThickness="1"
+                Background="White"
+                BoxShadow="2 2 2 2 #dddddd"
+                CornerRadius="15"
+                MinWidth="600"
+                Padding="10"
+                Margin="5, 20, 5, 0">
+            <StackPanel>
+                <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto" Margin="5">
+
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="{Binding DetailApod.Title}"
+                                   FontWeight="SemiBold"
+                                   Margin="0, 0, 5, 0"
+                                   FontSize="16"/>
+                        <TextBlock Text="{Binding DetailApod.Date, StringFormat='({0})'}"
+                                   FontSize="16"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Grid.Row="0" Grid.RowSpan="2"
+                            Content="Remove from Favorites"
+                            Command="{Binding RemoveApodCommand}"
+                            FontSize="16"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Right"
+                            Classes="Danger"
+                            Theme="{DynamicResource SolidButton}"
+                            Margin="5, 0, 0, 0"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="1"
+                               Text="{Binding DetailApod.Copyright, StringFormat='by {0}'}"
+                               IsVisible="{Binding DetailApod.Copyright,
+                                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Margin="0, 0, 0, 0"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="1"
+                               Text="by NASA"
+                               Margin="0, 0, 0, 0"
+                               IsVisible="{Binding DetailApod.Copyright,
+                                           Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+
+                </Grid>
+
+                <TextBlock Text="{Binding DetailApod.Explanation}"
+                           TextWrapping="Wrap"
+                           Margin="5, 5, 5, 0"/>
+            </StackPanel>
+        </Border>
+
+
+        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                Command="{Binding SwitchOpenApodPictureCommand}"
+                IsVisible="{Binding !IsApodPictureOpen}"
+                Background="Transparent"
+                VerticalAlignment="Top"
+                Padding="0"
+                Margin="5, 20, 5, 20">
+            <Image Name="image"
+                   asyncImageLoader:ImageLoader.Source="{Binding DetailApod.Url}"
+                   MinWidth="700"/>
+        </Button>
+
+        <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="3"
+                IsVisible="{Binding IsApodPictureOpen}"
+                Background="#D8000000"
+                ZIndex="1">
+            <Grid RowDefinitions="*, Auto" Margin="20">
+                <Image Grid.Row="0"
+                       Name="imageBig"
+                       IsVisible="{Binding IsApodPictureOpen}"
+                       asyncImageLoader:ImageLoader.Source="{Binding DetailApod.HdUrl}"/>
+                <Button Grid.Row="1"
+                        Content="Go Back"
+                        Command="{Binding SwitchOpenApodPictureCommand}"
+                        FontSize="18"
+                        Classes="Secondary"
+                        Theme="{DynamicResource SolidButton}"
+                        Margin="0, 20, 0, 0"/>
+                <progRing:ProgressRing Grid.Row="0"
+                                       Width="80"
+                                       Height="80"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="Red">
+                    <progRing:ProgressRing.IsActive>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="#imageBig.(asyncImageLoader:ImageLoader.IsLoading)"/>
+                            <Binding Path="IsApodPictureOpen"/>
+                        </MultiBinding>
+                    </progRing:ProgressRing.IsActive>
+                </progRing:ProgressRing>
+            </Grid>
+        </Border>
+
+        <progRing:ProgressRing Grid.Column="1" Grid.Row="1"
+                               IsActive="{Binding #image.(asyncImageLoader:ImageLoader.IsLoading)}"
+                               Width="80"
+                               Height="80"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="Red"/>
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <TextBlock IsVisible="{Binding DetailApod.MediaType, Converter={StaticResource ApodMediaTypeIsVideo}}"
+                       Text="This is a video, you can watch it here:"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Margin="0, 0, 0, 10"/>
+            <TextBox IsVisible="{Binding DetailApod.MediaType, Converter={StaticResource ApodMediaTypeIsVideo}}"
+                     Text="{Binding DetailApod.Url}"
+                     IsReadOnly="True"
+                     BorderBrush="White"
+                     BorderThickness="0"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Button Grid.Column="1" Grid.Row="2"
+                Content="Go Back"
+                Command="{Binding GoBackCommand}"
+                FontSize="16"
+                Classes="Secondary"
+                Theme="{DynamicResource SolidButton}"
+                Margin="5, 0, 5, 20"/>
+</Grid>
+
+</UserControl>
